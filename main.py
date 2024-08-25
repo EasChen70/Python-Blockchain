@@ -1,18 +1,43 @@
-import tweepy
-from dotenv import load_dotenv
-import os
+import flask
+import hashlib
+from time import time
 
-load_dotenv(dotenv_path="secret.env")
+class Blockchain():
+    def __init__(self):
+        self.chain = []
+        self.current_transactions = []
+        #Create genesis block
+        self.new_block(previous_hash=1, proof=100)
+    def new_block(self, proof, previous_hash=None):
+        #Block structure, timestamp, list of transactions, proof, hash of prev block
+        block = {
+            'index': len(self.chain) + 1,
+            'timestamp': time(),
+            'transactions': self.current_transactions,
+            'proof': proof,
+            'hash': previous_hash,
+        }
+        #Reset current list of transactions
+        self.current_transactions = []
 
-#Authentication
-api_key = os.getenv("api_key")
-api_secret = os.getenv("api_secret")
-bearer_token = os.getenv("bearer_token")
-access_token = os.getenv("access_token")
-access_token_secret = os.getenv("access_token_secret")
+        self.chain.append(block)
+        return block
 
+    #self, sender, recipient, amount
+    def new_transaction(self, sender, recipient, amount):
+        self.current_transactions.append({
+            'sender': sender,
+            'recipient': recipient,
+            'amount': amount,
+        })
+        
+        return self.last_block['index'] + 1
 
-auth = tweepy.OAuth1UserHandler(api_key, api_secret, access_token, access_token_secret)
-api = tweepy.API(auth)
+    @staticmethod
+    def hash(block):
+        pass
 
-api.update_status(status="Hello")
+    @property
+    def last_block(self):
+        #last index
+        return self.chain[-1]
